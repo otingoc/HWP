@@ -1,0 +1,834 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>멘델의 유전 원리 시뮬레이션</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+    font-family: "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+    background: #f5f6f8;
+    color: #263445;
+    margin: 0;
+    padding: 24px;
+    line-height: 1.7;
+}
+
+.container { max-width: 920px; margin: auto; }
+
+h1 {
+    text-align: center;
+    color: #233b59;
+    font-size: 27px;
+}
+
+h2 {
+    color: #233b59;
+    font-size: 21px;
+    border-bottom: 2px solid #dce3ec;
+    padding-bottom: 10px;
+}
+
+h3 { font-size: 17px; color: #344d6c; margin-top: 25px; }
+
+.intro { text-align: center; color: #657184; margin-bottom: 30px; }
+
+.section {
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 8px #0000000c;
+}
+
+button {
+    background: #315b85;
+    color: white;
+    border: none;
+    padding: 11px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 15px;
+    margin: 5px 3px;
+    font-family: inherit;
+}
+
+button:hover { background: #234567; }
+button:disabled { background: #aab4c0; cursor: not-allowed; }
+.secondary { background: #68778b; }
+
+.marble-area {
+    display: flex;
+    justify-content: center;
+    gap: 45px;
+    flex-wrap: wrap;
+    margin: 25px 0;
+}
+
+.marble-group { text-align: center; }
+
+.marble {
+    width: 43px;
+    height: 43px;
+    border-radius: 50%;
+    display: inline-block;
+    margin: 5px;
+    border: 1px solid #888;
+}
+
+.red { background: #e74c3c; }
+.green { background: #2ecc71; }
+.white { background: white; }
+
+.parent-box {
+    display: flex;
+    justify-content: center;
+    gap: 35px;
+    text-align: center;
+    margin: 20px;
+}
+
+.parent {
+    min-width: 140px;
+    padding: 15px;
+    background: #f1f4f8;
+    border-radius: 8px;
+}
+
+.result {
+    background: #f0f4f8;
+    border-radius: 7px;
+    padding: 15px;
+    margin: 15px 0;
+}
+
+.coin {
+    background: #edf2f8;
+    border-radius: 7px;
+    padding: 12px;
+    margin: 8px 0;
+    font-weight: bold;
+}
+
+.child-box {
+    background: #f8f9fb;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 15px 0;
+}
+
+input {
+    width: 110px;
+    padding: 9px;
+    border: 1px solid #aebbd0;
+    border-radius: 5px;
+    font-size: 16px;
+    text-align: center;
+    margin: 5px;
+}
+
+.feedback { font-weight: bold; margin-top: 8px; }
+.correct { color: #16834a; }
+.wrong { color: #d33b36; }
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 15px 0;
+    text-align: center;
+    font-size: 14px;
+}
+
+th, td { border: 1px solid #dce2eb; padding: 9px; }
+th { background: #eaf0f7; }
+
+.note { color: #69778a; font-size: 14px; }
+.hidden { display: none; }
+
+.bar {
+    height: 25px;
+    border-radius: 4px;
+    margin: 7px 0 17px;
+    color: white;
+    text-align: center;
+    font-size: 13px;
+    min-width: 0;
+}
+
+.white-bar { color: #333; border: 1px solid #aaa; }
+
+@media(max-width:600px) {
+    body { padding: 10px; }
+    .section { padding: 15px; }
+    table { font-size: 12px; }
+    th, td { padding: 6px 3px; }
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>멘델의 유전 원리 시뮬레이션</h1>
+
+<p class="intro">
+부모 개체의 유전자형에 따라 자손의 유전자형과 표현형이
+어떻게 결정되는지 알아봅시다.
+</p>
+
+<!-- 활동 1 -->
+
+<div class="section">
+
+<h2>활동 1. 부모 조합 1의 단계별 유전 실험</h2>
+
+<p>
+상자에는 유전자형이 서로 다른 구슬 40개가 들어 있습니다.
+구슬 두 개를 무작위로 뽑아 부모 개체로 정하고,
+두 자손의 유전자형을 예측해 봅시다.
+</p>
+
+<h3>1. 구슬의 구성</h3>
+
+<div class="marble-area">
+    <div class="marble-group">
+        <span class="marble red"></span>
+        <p>빨간색 구슬</p>
+        <strong>16개 (AA)</strong>
+    </div>
+
+    <div class="marble-group">
+        <span class="marble green"></span>
+        <p>초록색 구슬</p>
+        <strong>16개 (Aa)</strong>
+    </div>
+
+    <div class="marble-group">
+        <span class="marble white"></span>
+        <p>흰색 구슬</p>
+        <strong>8개 (aa)</strong>
+    </div>
+</div>
+
+<h3>2. 부모 개체 선정</h3>
+
+<p>
+상자에서 구슬 두 개를 무작위로 뽑으세요.
+뽑은 구슬의 색깔과 유전자형을 확인합니다.
+</p>
+
+<button onclick="drawParents()">부모 구슬 두 개 뽑기</button>
+
+<div id="parentResult" class="hidden">
+
+    <div class="parent-box">
+        <div class="parent">
+            <span id="parentMarble1" class="marble"></span>
+            <p>부모 개체 1</p>
+            <strong id="parentGene1"></strong>
+        </div>
+
+        <div class="parent">
+            <span id="parentMarble2" class="marble"></span>
+            <p>부모 개체 2</p>
+            <strong id="parentGene2"></strong>
+        </div>
+    </div>
+
+    <div class="result">
+        <strong>부모 개체의 유전자형:</strong>
+        <span id="crossResult"></span>
+    </div>
+
+    <h3>3. 동전 던지기를 통한 자손의 유전자형 결정</h3>
+
+    <p id="coinInstruction"></p>
+
+    <button id="coinButton" onclick="flipCoins()">
+        동전 던지기
+    </button>
+
+    <div id="coinResult"></div>
+
+    <div id="predictionArea" class="hidden">
+
+        <h3>4. 자손의 유전자형 예측하기</h3>
+
+        <p>
+        동전 던지기 결과를 확인하고, 각 자손의 유전자형을
+        직접 예측하여 입력하세요.
+        </p>
+
+        <p class="note">
+        입력 가능한 유전자형: AA, Aa, aa
+        </p>
+
+        <div class="child-box">
+            <strong>자손 1</strong><br>
+            유전자형:
+            <input id="answer1" placeholder="유전자형" maxlength="2">
+            <div id="feedback1" class="feedback"></div>
+        </div>
+
+        <div class="child-box">
+            <strong>자손 2</strong><br>
+            유전자형:
+            <input id="answer2" placeholder="유전자형" maxlength="2">
+            <div id="feedback2" class="feedback"></div>
+        </div>
+
+        <button onclick="checkAnswers()">정답 확인하기</button>
+    </div>
+
+    <div id="finalResult" class="hidden">
+
+        <h3>5. 자손의 유전자형과 표현형 확인하기</h3>
+
+        <table>
+            <tr>
+                <th>구분</th>
+                <th>유전자형</th>
+                <th>표현형</th>
+            </tr>
+            <tr>
+                <td>자손 1</td>
+                <td id="finalGene1"></td>
+                <td id="finalColor1"></td>
+            </tr>
+            <tr>
+                <td>자손 2</td>
+                <td id="finalGene2"></td>
+                <td id="finalColor2"></td>
+            </tr>
+        </table>
+
+        <p id="finalMessage"></p>
+
+        <button onclick="resetActivity()">새로운 부모 조합 실험하기</button>
+    </div>
+</div>
+</div>
+
+<!-- 활동 2 -->
+
+<div class="section">
+
+<h2>활동 2. 부모 조합 20개의 유전 시뮬레이션</h2>
+
+<p>
+새로운 구슬 40개를 이용하여 부모 조합 20개를 구성하고,
+각 부모 조합에서 자손 두 마리씩 태어나는 상황을
+한꺼번에 시뮬레이션합니다.
+</p>
+
+<div class="result">
+    <strong>시뮬레이션 조건</strong>
+    <ul>
+        <li>부모 개체: 총 40개 (20쌍)</li>
+        <li>부모 조합: 20개</li>
+        <li>각 부모 조합에서 태어나는 자손: 2마리</li>
+        <li>전체 자손 수: 40마리</li>
+        <li>부모로 사용한 구슬은 다시 상자에 넣지 않습니다.</li>
+    </ul>
+</div>
+
+<button onclick="runSimulation()">20개 부모 조합 시뮬레이션 실행</button>
+
+<div id="batchResult" class="hidden">
+
+    <h3>1. 부모 조합별 자손의 유전자형과 표현형</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>부모 조합</th>
+                <th>부모의 유전자형</th>
+                <th>자손 1</th>
+                <th>자손 2</th>
+            </tr>
+        </thead>
+        <tbody id="pairTable"></tbody>
+    </table>
+
+    <h3>2. 자손의 표현형별 개체 수</h3>
+
+    <table>
+        <tr>
+            <th>표현형</th>
+            <th>유전자형</th>
+            <th>개체 수</th>
+            <th>비율</th>
+        </tr>
+        <tr>
+            <td>빨간색</td>
+            <td>AA</td>
+            <td id="redCount"></td>
+            <td id="redPercent"></td>
+        </tr>
+        <tr>
+            <td>초록색</td>
+            <td>Aa</td>
+            <td id="greenCount"></td>
+            <td id="greenPercent"></td>
+        </tr>
+        <tr>
+            <td>흰색</td>
+            <td>aa</td>
+            <td id="whiteCount"></td>
+            <td id="whitePercent"></td>
+        </tr>
+        <tr>
+            <th colspan="2">합계</th>
+            <th>40</th>
+            <th>100%</th>
+        </tr>
+    </table>
+
+    <h3>3. 자손의 표현형 분포</h3>
+
+    <p>빨간색 (AA)</p>
+    <div class="bar red" id="redBar"></div>
+
+    <p>초록색 (Aa)</p>
+    <div class="bar green" id="greenBar"></div>
+
+    <p>흰색 (aa)</p>
+    <div class="bar white white-bar" id="whiteBar"></div>
+
+    <p class="note">
+    시뮬레이션 결과는 부모 조합과 동전 던지기에 따라 달라집니다.
+    다시 실행하면 새로운 결과를 확인할 수 있습니다.
+    </p>
+
+    <button class="secondary" onclick="runSimulation()">
+        다시 시뮬레이션하기
+    </button>
+</div>
+</div>
+</div>
+
+<script>
+
+// =================================
+// 1. 기본 자료
+// =================================
+
+const initialBag = [
+    ...Array(16).fill("AA"),
+    ...Array(16).fill("Aa"),
+    ...Array(8).fill("aa")
+];
+
+const phenotype = {
+    AA: "빨간색",
+    Aa: "초록색",
+    aa: "흰색"
+};
+
+// 부모 조합을 명확하게 구분하는 함수
+// 예: AA × Aa -> AA|Aa
+
+function getPairKey(a, b) {
+    return [a, b].sort().join("|");
+}
+
+// 배열 무작위 섞기
+
+function shuffle(array) {
+    let a = [...array];
+
+    for (let i = a.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+
+    return a;
+}
+
+// 유전자형에 따른 구슬 색깔
+
+function getColorClass(gene) {
+    if (gene === "AA") return "red";
+    if (gene === "Aa") return "green";
+    return "white";
+}
+
+// 동전 던지기
+
+function drawRandomCoin() {
+    return Math.random() < 0.5 ? "앞면" : "뒷면";
+}
+
+// =================================
+// 2. 자손 한 마리의 유전자형 결정
+// =================================
+
+function generateChild(a, b) {
+
+    const key = getPairKey(a, b);
+
+    // AA × AA
+    if (key === "AA|AA") {
+        return { gene: "AA", coins: [] };
+    }
+
+    // AA × Aa
+    if (key === "AA|Aa") {
+        const coin = drawRandomCoin();
+
+        return {
+            gene: coin === "앞면" ? "AA" : "Aa",
+            coins: [coin]
+        };
+    }
+
+    // AA × aa
+    if (key === "AA|aa") {
+        return { gene: "Aa", coins: [] };
+    }
+
+    // Aa × Aa
+    if (key === "Aa|Aa") {
+
+        const first = drawRandomCoin();
+
+        if (first === "앞면") {
+            return {
+                gene: "Aa",
+                coins: [first]
+            };
+        }
+
+        const second = drawRandomCoin();
+
+        return {
+            gene: second === "앞면" ? "AA" : "aa",
+            coins: [first, second]
+        };
+    }
+
+    // Aa × aa
+    if (key === "Aa|aa") {
+
+        const coin = drawRandomCoin();
+
+        return {
+            gene: coin === "앞면" ? "Aa" : "aa",
+            coins: [coin]
+        };
+    }
+
+    // aa × aa
+    if (key === "aa|aa") {
+        return { gene: "aa", coins: [] };
+    }
+
+    throw new Error("정의되지 않은 부모 유전자형 조합: " + key);
+}
+
+// =================================
+// 3. 활동 1: 부모 구슬 추출
+// =================================
+
+let bag = [];
+let parents = [];
+let offspring = [];
+let correctAnswers = [];
+
+function drawParents() {
+
+    bag = shuffle(initialBag);
+
+    // 비복원 추출
+    parents = [bag.pop(), bag.pop()];
+
+    document.getElementById("parentResult")
+        .classList.remove("hidden");
+
+    document.getElementById("parentGene1").textContent =
+        parents[0];
+
+    document.getElementById("parentGene2").textContent =
+        parents[1];
+
+    document.getElementById("parentMarble1").className =
+        "marble " + getColorClass(parents[0]);
+
+    document.getElementById("parentMarble2").className =
+        "marble " + getColorClass(parents[1]);
+
+    document.getElementById("crossResult").textContent =
+        parents[0] + " × " + parents[1];
+
+    const key = getPairKey(parents[0], parents[1]);
+
+    const instructions = {
+        "AA|AA":
+            "부모의 유전자형이 AA × AA입니다. " +
+            "두 자손 모두 AA가 됩니다. 동전 던지기는 필요하지 않습니다.",
+
+        "AA|Aa":
+            "부모의 유전자형이 AA × Aa입니다. " +
+            "자손 한 마리마다 동전을 한 번 던집니다. " +
+            "앞면이 나오면 AA, 뒷면이 나오면 Aa입니다.",
+
+        "AA|aa":
+            "부모의 유전자형이 AA × aa입니다. " +
+            "두 자손 모두 Aa가 됩니다. 동전 던지기는 필요하지 않습니다.",
+
+        "Aa|Aa":
+            "부모의 유전자형이 Aa × Aa입니다. " +
+            "자손 한 마리마다 먼저 동전을 한 번 던집니다. " +
+            "앞면이 나오면 Aa입니다. " +
+            "뒷면이 나오면 동전을 한 번 더 던집니다. " +
+            "두 번째 동전의 앞면은 AA, 뒷면은 aa를 의미합니다.",
+
+        "Aa|aa":
+            "부모의 유전자형이 Aa × aa입니다. " +
+            "자손 한 마리마다 동전을 한 번 던집니다. " +
+            "앞면이 나오면 Aa, 뒷면이 나오면 aa입니다.",
+
+        "aa|aa":
+            "부모의 유전자형이 aa × aa입니다. " +
+            "두 자손 모두 aa가 됩니다. 동전 던지기는 필요하지 않습니다."
+    };
+
+    document.getElementById("coinInstruction").textContent =
+        instructions[key];
+
+    document.getElementById("coinResult").innerHTML = "";
+
+    document.getElementById("predictionArea")
+        .classList.add("hidden");
+
+    document.getElementById("finalResult")
+        .classList.add("hidden");
+
+    document.getElementById("answer1").value = "";
+    document.getElementById("answer2").value = "";
+
+    document.getElementById("feedback1").textContent = "";
+    document.getElementById("feedback2").textContent = "";
+
+    const noCoinPairs = ["AA|AA", "AA|aa", "aa|aa"];
+
+    const button = document.getElementById("coinButton");
+
+    button.disabled = false;
+
+    button.textContent = noCoinPairs.includes(key)
+        ? "자손의 유전자형 예측하기"
+        : "동전 던지기";
+
+    offspring = [];
+}
+
+// =================================
+// 4. 활동 1: 동전 던지기 및 결과 제시
+// =================================
+
+function flipCoins() {
+
+    offspring = [
+        generateChild(parents[0], parents[1]),
+        generateChild(parents[0], parents[1])
+    ];
+
+    correctAnswers = offspring.map(child => child.gene);
+
+    let html = "";
+
+    offspring.forEach((child, index) => {
+
+        html += `
+            <div class="coin">
+                자손 ${index + 1}의 동전 결과:
+                ${child.coins.length
+                    ? child.coins.join(" → ")
+                    : "동전 던지기 불필요"}
+            </div>
+        `;
+    });
+
+    // 유전자형은 공개하지 않고 동전 결과만 표시
+
+    document.getElementById("coinResult").innerHTML = html;
+
+    document.getElementById("predictionArea")
+        .classList.remove("hidden");
+
+    document.getElementById("coinButton").disabled = true;
+}
+
+// =================================
+// 5. 활동 1: 학생의 예측 확인
+// =================================
+
+function checkAnswers() {
+
+    const answers = [
+        document.getElementById("answer1").value.trim(),
+        document.getElementById("answer2").value.trim()
+    ];
+
+    const valid = answers.every(answer =>
+        ["AA", "Aa", "aa"].includes(answer)
+    );
+
+    if (!valid) {
+        alert("유전자형을 AA, Aa 또는 aa로 정확하게 입력하세요.");
+        return;
+    }
+
+    let allCorrect = true;
+
+    answers.forEach((answer, i) => {
+
+        const feedback =
+            document.getElementById("feedback" + (i + 1));
+
+        if (answer === correctAnswers[i]) {
+
+            feedback.textContent = "정답입니다.";
+            feedback.className = "feedback correct";
+
+        } else {
+
+            feedback.textContent = "오답입니다. 다시 생각해 보세요.";
+            feedback.className = "feedback wrong";
+
+            allCorrect = false;
+        }
+    });
+
+    if (!allCorrect) return;
+
+    document.getElementById("finalGene1").textContent =
+        correctAnswers[0];
+
+    document.getElementById("finalGene2").textContent =
+        correctAnswers[1];
+
+    document.getElementById("finalColor1").textContent =
+        phenotype[correctAnswers[0]];
+
+    document.getElementById("finalColor2").textContent =
+        phenotype[correctAnswers[1]];
+
+    document.getElementById("finalResult")
+        .classList.remove("hidden");
+
+    document.getElementById("finalMessage").textContent =
+        "두 자손의 유전자형을 모두 정확하게 예측했습니다.";
+}
+
+// =================================
+// 6. 활동 1: 새로운 실험
+// =================================
+
+function resetActivity() {
+
+    document.getElementById("parentResult")
+        .classList.add("hidden");
+
+    document.getElementById("finalResult")
+        .classList.add("hidden");
+
+    document.getElementById("predictionArea")
+        .classList.add("hidden");
+
+    document.getElementById("step1")
+        ?.scrollIntoView({ behavior: "smooth" });
+}
+
+// =================================
+// 7. 활동 2: 부모 조합 20개
+// =================================
+
+function runSimulation() {
+
+    // 새로운 구슬 40개 준비
+    let simulationBag = shuffle(initialBag);
+
+    const counts = {
+        AA: 0,
+        Aa: 0,
+        aa: 0
+    };
+
+    let rows = "";
+
+    for (let i = 1; i <= 20; i++) {
+
+        // 부모 구슬 2개를 비복원 추출
+        const parent1 = simulationBag.pop();
+        const parent2 = simulationBag.pop();
+
+        // 자손 2마리의 유전자형 결정
+        const child1 = generateChild(parent1, parent2);
+        const child2 = generateChild(parent1, parent2);
+
+        counts[child1.gene]++;
+        counts[child2.gene]++;
+
+        rows += `
+            <tr>
+                <td>${i}</td>
+                <td>${parent1} × ${parent2}</td>
+                <td>${child1.gene} (${phenotype[child1.gene]})</td>
+                <td>${child2.gene} (${phenotype[child2.gene]})</td>
+            </tr>
+        `;
+    }
+
+    document.getElementById("pairTable").innerHTML = rows;
+
+    // 표현형별 개체 수
+
+    document.getElementById("redCount").textContent = counts.AA;
+    document.getElementById("greenCount").textContent = counts.Aa;
+    document.getElementById("whiteCount").textContent = counts.aa;
+
+    // 표현형별 비율
+
+    const redP = counts.AA / 40 * 100;
+    const greenP = counts.Aa / 40 * 100;
+    const whiteP = counts.aa / 40 * 100;
+
+    document.getElementById("redPercent").textContent =
+        redP.toFixed(1) + "%";
+
+    document.getElementById("greenPercent").textContent =
+        greenP.toFixed(1) + "%";
+
+    document.getElementById("whitePercent").textContent =
+        whiteP.toFixed(1) + "%";
+
+    setBar("redBar", redP);
+    setBar("greenBar", greenP);
+    setBar("whiteBar", whiteP);
+
+    document.getElementById("batchResult")
+        .classList.remove("hidden");
+}
+
+// =================================
+// 8. 표현형 분포 막대그래프
+// =================================
+
+function setBar(id, percent) {
+
+    const bar = document.getElementById(id);
+
+    bar.style.width = percent + "%";
+    bar.textContent = percent.toFixed(1) + "%";
+}
+
+</script>
+
+</body>
+</html>
